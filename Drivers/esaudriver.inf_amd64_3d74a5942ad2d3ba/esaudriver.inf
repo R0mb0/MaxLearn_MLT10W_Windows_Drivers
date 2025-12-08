@@ -1,0 +1,84 @@
+;
+; ESAuDriver.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=MEDIA ; TODO: edit Class
+ClassGuid={4d36e96c-e325-11ce-bfc1-08002be10318} ; TODO: edit ClassGuid
+Provider = Everest Semiconductor Co., Ltd
+CatalogFile=ESAuDriver.cat
+DriverVer = 12/07/2020,10.14.11.641
+
+[DestinationDirs]
+DefaultDestDir = 12
+ESAuDriver_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+ESAuDriver.sys  = 1,,
+;
+
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%ESAuDriver.DeviceDesc%=ESAuDriver_Device, ACPI\ESSX8326 ; TODO: edit hw-id
+%ESAuDriver.DeviceDesc%=ESAuDriver_Device, ACPI\ESSX8316 ; TODO: edit hw-id
+%ESAuDriver.DeviceDesc%=ESAuDriver_Device, ACPI\ESSX8336 ; TODO: edit hw-id
+%ESAuDriver.DeviceDesc%=ESAuDriver_Device, ACPI\ESSX8396 ; TODO: edit hw-id
+
+[ESAuDriver_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+ESAuDriver.sys
+
+;-------------- Service installation
+[ESAuDriver_Device.NT.Services]
+AddService = ESAuDriver,%SPSVCINST_ASSOCSERVICE%, ESAuDriver_Service_Inst
+
+; -------------- ESAuDriver driver install sections
+[ESAuDriver_Service_Inst]
+DisplayName    = %ESAuDriver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\ESAuDriver.sys
+
+;
+;--- ESAuDriver_Device Coinstaller installation ------
+;
+
+;[ESAuDriver_Device.NT.CoInstallers]
+;AddReg=ESAuDriver_Device_CoInstaller_AddReg
+;CopyFiles=ESAuDriver_Device_CoInstaller_CopyFiles
+
+;[ESAuDriver_Device_CoInstaller_AddReg]
+;HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+;[ESAuDriver_Device_CoInstaller_CopyFiles]
+;WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[ESAuDriver_Device.NT.Wdf]
+KmdfService =  ESAuDriver, ESAuDriver_wdfsect
+[ESAuDriver_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+EVEREST="Everest Semiconductor"
+ManufacturerName="Everest Semiconductor Co., Ltd" ;TODO: Replace with your manufacturer name
+;ClassName="\Device\HW_CODEC" ; TODO: edit ClassName
+;ClassName ="Samples"
+DiskName = "ESAuDriver Installation Disk"
+ESAuDriver.DeviceDesc = "ESAuDriver Device"
+ESAuDriver.SVCDESC = "ESAuDriver Service"
