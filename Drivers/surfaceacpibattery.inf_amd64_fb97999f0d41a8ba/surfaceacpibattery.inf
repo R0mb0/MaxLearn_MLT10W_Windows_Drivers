@@ -1,0 +1,81 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 
+; File:             SurfaceACPIBattery.inf
+;
+; Description:      Installation file to call CMBatt.sys's inf to install
+;                   the default inbox battery driver.
+;                   
+;
+;         Copyright (C) Microsoft Corporation.  All Rights Reserved.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[Version]
+Signature="$Windows NT$"
+Provider=%ManufacturerName%
+ClassGUID={72631e54-78a4-11d0-bcf7-00aa00b7b32a}
+Class=Battery
+CatalogFile=SurfaceACPIBattery.cat
+DriverVer=05/23/2017,1.2.28.0
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12  ; %SystemRoot%\system32\drivers 
+
+[SourceDisksFiles]
+; Empty
+
+[SourceDisksNames]
+1 = %InstallationDiskName%,,,""
+
+
+;******************************************************************************
+; Install Section
+;******************************************************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%SurfaceDefaultBattery.DeviceDesc%=SurfaceACPIBattery, ACPI\VEN_PNP&DEV_0C0A
+
+
+;******************************************************************************
+; Device installation.  Use the Microsoft CMBatt.sys, an inbox driver.
+;******************************************************************************
+[SurfaceACPIBattery.NT]
+CopyFiles=CopyFilesList
+DelFiles=RemoveFilesList
+Include=battery.inf
+Needs=CmBatt_Inst
+
+[CopyFilesList]
+; Empty list, but must be present if you want to delete files.
+
+[RemoveFilesList]
+necbatt.sys
+
+[SurfaceACPIBattery.NT.HW]
+DelReg=SurfaceACPIBattery.NT.HW.DelReg
+Include=battery.inf
+Needs=CmBatt_Inst
+
+;******************************************************************************
+; Dis-connect any upper or lower filter drivers on CMBatt.sys in the registry.
+;******************************************************************************
+[SurfaceACPIBattery.NT.HW.DelReg]
+HKR,,UpperFilters
+HKR,,LowerFilters
+
+;******************************************************************************
+; Remove this serivce if it is present.
+;******************************************************************************
+[SurfaceACPIBattery.NT.Services]
+Include=battery.inf
+Needs=CmBatt_Inst.Services
+DelService=necbatt,0x00000200 ; Stop the service before deleting it
+
+
+[Strings]
+ManufacturerName                 = "Surface"
+SurfaceDefaultBattery.DeviceDesc = "Microsoft Surface ACPI-Compliant Control Method Battery"
+InstallationDiskName             = "Microsoft Surface ACPI-Compliant Control Method Battery installation disk"
